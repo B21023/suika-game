@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Drop Game</title>
+    <style>
+#game-container {
+    width: 400px;
+    height: 600px;
+    border: 1px solid black;
+    position: relative;
+}
+
+#player {
+    width: 50px;
+    height: 50px;
+    background-color: blue;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.fruit {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+}
+
+.apple {
+    background-color: red;
+}
+
+.banana {
+    background-color: yellow;
+}
+
+.watermelon {
+    background-color: green;
+}
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="player"></div>
+        <div id="fruits"></div>
+    </div>
+    <script>
+    const gameContainer = document.getElementById('game-container');
+const player = document.getElementById('player');
+const fruits = document.getElementById('fruits');
+
+let score = 0;
+
+function createFruit() {
+    const fruit = document.createElement('div');
+    fruit.classList.add('fruit');
+    const randomFruit = Math.floor(Math.random() * 3); // Randomly choose fruit type
+    switch (randomFruit) {
+        case 0:
+            fruit.classList.add('apple');
+            break;
+        case 1:
+            fruit.classList.add('banana');
+            break;
+        case 2:
+            fruit.classList.add('watermelon');
+            break;
+    }
+    fruit.style.left = Math.floor(Math.random() * (gameContainer.offsetWidth - 50)) + 'px'; // Random horizontal position
+    fruits.appendChild(fruit);
+
+    // Move the fruit downward
+    const moveInterval = setInterval(() => {
+        fruit.style.top = parseInt(fruit.style.top || 0) + 5 + 'px'; // Adjust speed here
+        if (parseInt(fruit.style.top) >= gameContainer.offsetHeight) {
+            clearInterval(moveInterval);
+            fruits.removeChild(fruit);
+        }
+
+        // Check collision with player
+        if (checkCollision(fruit, player)) {
+            fruits.removeChild(fruit);
+            score++;
+            console.log('Score:', score);
+        }
+    }, 1000 / 60); // 60 FPS
+}
+
+function checkCollision(fruit, player) {
+    const fruitRect = fruit.getBoundingClientRect();
+    const playerRect = player.getBoundingClientRect();
+    return (
+        fruitRect.bottom >= playerRect.top &&
+        fruitRect.top <= playerRect.bottom &&
+        fruitRect.right >= playerRect.left &&
+        fruitRect.left <= playerRect.right
+    );
+}
+
+// Player movement
+document.addEventListener('keydown', (event) => {
+    const key = event.key;
+    if (key === 'ArrowLeft') {
+        const leftPos = parseInt(player.style.left || 0);
+        player.style.left = Math.max(leftPos - 10, 0) + 'px';
+    } else if (key === 'ArrowRight') {
+        const rightPos = parseInt(player.style.left || 0);
+        player.style.left = Math.min(rightPos + 10, gameContainer.offsetWidth - player.offsetWidth) + 'px';
+    }
+});
+
+// Game loop
+setInterval(createFruit, 2000); // Adjust fruit spawn rate here
+
+    </script>
+</body>
+</html>
+
